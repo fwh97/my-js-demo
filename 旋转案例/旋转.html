@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<link rel="stylesheet" href="css/css.css"/>
+	<script src="move.js"></script>
+	<script>
+		window.onload = function () {
+			var aLi = id("slide").getElementsByTagName("li");
+			var config = [  {width: 400, top: 20, left: 50,	opacity: 20, zIndex: 2},//0
+							{width: 600, top: 70, left: 0, opacity: 80, zIndex: 3},//1
+							{width: 800, top: 100,left: 200, opacity: 100, zIndex: 4},//2
+							{width: 600, top: 70, left: 600, opacity: 80, zIndex: 3},//3
+							{width: 400, top: 20, left: 750, opacity: 20, zIndex: 2}//4
+			];
+
+			function xuanZhuang() {
+				for ( var i = 0; i < aLi.length; i++ ) {
+					animation(aLi[i], config[i],2,function () {
+						//animation(aLi[i],config[i],2);
+					});
+				}
+			}
+			xuanZhuang();
+			id("arrLeft").onclick=function () {
+				config.push(config.shift());
+				xuanZhuang();
+			};
+			id("arrRight").onclick=function () {
+				config.unshift(config.pop());
+				xuanZhuang();
+			};
+			id("slide").onmouseenter=function () {
+				animation(id("arrow"), {opacity:100},1);
+			};
+			id("slide").onmouseleave=function () {
+				animation(id("arrow"), {opacity:0},1);
+			}
+		}
+	</script>
+</head>
+<body>
+<div class="wrap" id="wrap">
+	<div class="slide" id="slide">
+		<ul>
+			<li><a href="#"><img src="images/slidepic1.jpg" alt=""/></a></li>
+			<li><a href="#"><img src="images/slidepic2.jpg" alt=""/></a></li>
+			<li><a href="#"><img src="images/slidepic3.jpg" alt=""/></a></li>
+			<li><a href="#"><img src="images/slidepic4.jpg" alt=""/></a></li>
+			<li><a href="#"><img src="images/slidepic5.jpg" alt=""/></a></li>
+		</ul>
+		<div class="arrow" id="arrow">
+			<a href="javascript:;" class="prev" id="arrLeft"></a>
+			<a href="javascript:;" class="next" id="arrRight"></a>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

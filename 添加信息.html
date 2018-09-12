@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+
+<style>
+* {margin:0; padding:0;}
+#ul1 {width:300px; height:300px; border:1px solid black; margin:10px auto;}
+#ul1 li {list-style:none; border-bottom:1px dashed #999; padding:2px; overflow:hidden; filter:alpha(opacity:0); opacity:0;}
+</style>
+
+<script>
+	function getStyle(obj, attr)
+{
+	  if(obj.currentStyle)
+	  {
+		  return obj.currentStyle[attr];
+	  }
+	  else
+	  {
+		  return getComputedStyle(obj ,false)[attr];
+	  }
+}
+
+
+function startMove(obj ,json ,fn)
+{
+	clearInterval(obj.timer);
+	
+	obj.timer=setInterval(function ()
+	{
+		var bStop=true;
+		//var attr='';
+		
+		for(var attr in json)
+		{
+			var iAttr=0;
+			if(attr=='opacity')
+			{
+				iAttr=parseInt(parseFloat(getStyle(obj,attr))*100);
+			}
+			else
+			{
+				iAttr=parseInt(getStyle(obj, attr));
+			}
+			
+			var iSpeed=(json[attr]-iAttr)/8;
+			iSpeed=iSpeed>0?Math.ceil(iSpeed):Math.floor(iSpeed);
+			
+			if(iAttr!=json[attr])
+			{
+				bStop=false;
+			}
+			
+			if(attr=='opacity')
+			{
+				obj.style.opacity=(iAttr+iSpeed)/100;
+				obj.style.filter='alpha(opacity:'+(iAttr+iSpeed)+')';
+			}
+			else
+			{
+				obj.style[attr]=iAttr+iSpeed+'px';
+			}
+		};
+		
+		if(bStop)
+		{
+			clearInterval(obj.timer);
+			if(fn)
+			{
+				fn();
+			}
+		}
+		
+	},30);
+}
+</script>
+<script>
+window.onload=function ()
+{
+	var oTxt=document.getElementById('txt1');
+	var oBtn=document.getElementById('btn1');
+	var oUl=document.getElementById('ul1');
+	
+	oBtn.onclick=function ()
+	{
+		var oLi=document.createElement('li');
+		var aLi=oUl.getElementsByTagName('li');
+		
+		oLi.innerHTML=oTxt.value;
+		oTxt.value='';
+		
+		if(aLi.length)
+		{
+			oUl.insertBefore(oLi,aLi[0]);
+		}
+		else
+		{
+			oUl.appendChild(oLi);
+		}
+		
+		var iHeight=oLi.offsetHeight;
+		oLi.style.height=0;
+		
+		startMove(oLi,{height: iHeight} ,function ()
+		{
+			startMove(oLi,{opacity:100});
+		});
+		
+		//oUl.appendChild(oLi);
+	};
+};
+</script>
+</head>
+
+<body>
+<textarea id="txt1" rows="10" cols="40"></textarea><br />
+<input id="btn1" type="button" value="发布" />
+<ul id="ul1">
+</ul>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<style>
+		* {
+			padding: 0;
+			margin: 0;
+		}
+
+		#ul1 {
+			list-style: none;
+			width: 400px;
+			height: 30px;
+			position: relative;
+			margin: 100px auto 0;
+		}
+
+		#ul1 li {
+			float: left;
+			width: 98px;
+			height: 28px;
+			line-height: 28px;
+			border: 1px solid #ccc;
+			text-align: center;
+			z-index: 2;
+			position: relative;
+			cursor: pointer;
+		}
+
+		#ul1 .bg {
+			position: absolute;
+			background: red;
+			width: 100px;
+			height: 28px;
+			z-index: 1;
+			top: 0;
+			left: 0;
+			overflow: hidden;
+			border: none;
+		}
+	</style>
+	<script src="move.js"></script>
+	<script>
+		window.onload = function () {
+			var oUl = document.getElementById("ul1");
+			var aLi = oUl.getElementsByTagName("li");
+			var oBg = aLi[ aLi.length - 1 ];
+			var iSpeed = 0;
+
+			for ( var i = 0; i < aLi.length-1; i++ ) {
+				aLi[ i ].onmouseover = function () {
+					//elasticMove(oBg, {left:this.offsetLeft});
+					animation(oBg, {left:this.offsetLeft},2);
+				}
+			}
+
+			/*function startMove(obj, iTarget) {
+				clearInterval(obj.timer);
+																// 目标减去对象的left(要走的距离)
+				obj.timer = setInterval(function () {           //对象的left超过目标时得负数 就反向（模仿弹性）
+					iSpeed += (iTarget - obj.offsetLeft) / 5;  //+=速度累加   除：弹性 让速度值由小到大；
+					iSpeed *= 0.7;  //!*= 模仿摩擦力 让速度值减小下去 ，最后停下来；
+
+					//left += iSpeed;   //left变量 每次速度累加起来（不累加速度值最后产生一两px误差）
+
+					//abs()：绝对值 速度小于1时（速度有负数的时候所以要绝对值）并且对象到达目标小于1之差
+					if ( Math.abs(iSpeed) < 1 && Math.abs(obj.offsetLeft - iTarget) < 1 ) {
+						//console.log(left);
+						clearInterval(obj.timer);    //停止运动
+						obj.style.left=iTarget+"px"; //按死到目标 以防产生一两px误差
+					}
+					else{
+						obj.style.left=iSpeed+obj.offsetLeft+"px";   //速度值加对象left动起来
+					}
+
+				}, 30)
+			}*/
+
+		}
+	</script>
+</head>
+<body>
+<ul id="ul1">
+	<li>首页</li>
+	<li>关于我们</li>
+	<li>产品</li>
+	<li>联系方式</li>
+	<li class="bg"></li>
+</ul>
+
+
+</body>
+</html>

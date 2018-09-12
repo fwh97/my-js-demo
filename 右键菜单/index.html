@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>CSS3制作圆形旋转菜单特效</title>
+
+    <link rel="stylesheet" href="css/style.css" media="screen" type="text/css" />
+	<script>
+		window.onload=function () {
+			(function () {
+				window.onscroll=function () {       //我真是蠢，写两次window.onscroll 会覆盖上次的；
+					var textMenu=new Textmenu("Textmenu");
+					textMenu.fnScroll();
+				};
+				new Textmenu("Textmenu");
+			}());
+		}
+	</script>
+</head>
+
+<body>
+
+  <div id="Textmenu" class="circle">
+  <div class="ring">
+    <a href="" class="menuItem fa fa-home fa-2x"></a>
+    <a href="" class="menuItem fa fa-comment fa-2x"></a>
+    <a href="" class="menuItem fa fa-play fa-2x"></a>
+    <a href="" class="menuItem fa fa-camera fa-2x"></a>
+    <a href="" class="menuItem fa fa-music fa-2x"></a>
+    <a href="" class="menuItem fa fa-user fa-2x"></a>
+    <a href="" class="menuItem fa fa-trash-o fa-2x"></a>
+    <a href="" class="menuItem fa fa-star fa-2x"></a>
+  </div>
+  <a href="#" class="center fa fa-th fa-2x"></a>
+</div>
+<div id="div1" style="height: 100px; width: 100px; background: red; position: absolute;"></div>
+  
+  <script src="js/move.js"></script>
+  <script src="js/index.js"></script>
+
+</body>
+
+</html>

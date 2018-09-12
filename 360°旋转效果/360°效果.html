@@ -1,0 +1,113 @@
+<!doctype html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<link rel="stylesheet" type="text/css" href="style.css" />
+
+<script>
+window.onload=function ()
+{
+    var oImg=document.getElementById('img1');
+    var aImg=document.getElementsByTagName('img');
+    var oLastImg=oImg;
+    var lastX=0;
+    var iSpeed=0;
+    var timer=null;
+    var x=0;
+    
+    var i=0;
+    console.log(aImg.length);
+    for(i=1;  i<77; i++)
+    {
+        (function(oNewImg){      
+            var oImg=new Image();
+            
+            oImg.onload=function()
+            {
+                oNewImg.src=this.src;
+            }
+            
+            oImg.src="img/miaov ("+i+").jpg";
+            
+            document.body.appendChild(oNewImg);
+            oNewImg.style.display='none';
+        })(document.createElement('img'));
+    }
+    
+    document.onmousedown=function(ev)
+    {
+        clearInterval(timer);
+        var oEvent=ev||event;
+        var disX=oEvent.clientX-x;
+        document.onmousemove=function(ev)
+        {
+            var oEvent=ev||event;
+            x=oEvent.clientX-disX; 
+            //console.log(x);
+            xzPlay();
+            
+            iSpeed=x-lastX;
+            lastX=x;
+            
+            return false;
+        }
+        document.onmouseup=function()
+        {
+            document.onmousemove=null;
+            document.onmouseup=null;
+            
+            timer=setInterval(function(){
+                x+=iSpeed;
+                xzPlay();
+            },50);
+        }
+        return false;
+        
+        function xzPlay()
+        {
+            if(iSpeed>0)
+            {
+                iSpeed--;
+            }
+            else
+            {
+                iSpeed++;
+            }
+            
+            if(iSpeed==0||iSpeed>aImg.length||iSpeed<-aImg.length)
+            {
+                clearInterval(timer);
+            }
+            
+            var l=parseInt(-x/10);
+                
+            if(l>0)
+            {
+                l=l%77;
+            }
+            else
+            {
+                l=l-Math.floor(l/aImg.length)*aImg.length;
+            }
+            
+            if(oLastImg!=aImg[l])
+            {
+                oLastImg.style.display='none';
+                aImg[l].style.display='block';
+                oLastImg=aImg[l];
+            }                                   
+        }
+    }
+    
+}
+</script>
+
+</head>
+
+<body>
+<img id="img1" src="img/miaov (0).jpg" />
+
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!doctype html>
+
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<style>
+.m{
+    width:800px;
+    height:600px;
+    background:#ccc;
+    position:relative;
+}
+</style>
+<script>
+function myAddEvent(obj, sEvent, fn)
+{
+	if(obj.attachEvent)
+	{
+		obj.attachEvent('on'+sEvent, function (){
+			if(false==fn.call(obj))
+			{
+				return false;
+				event.cancelBubble=true;
+			}
+		});
+	}
+	else
+	{
+		obj.addEventListener(sEvent, function (ev){
+			if( false==fn.call(obj) )
+			{
+				ev.preventDefault();
+				ev.cancelBubble=true;
+				
+			}		}  ,false);
+	}
+}
+
+
+window.onload=function ()
+{
+    (function(){
+        var aElement=[];
+        function Food(x,y,width,height, color)
+        {
+            this.x=0;
+            this.y=0;
+            this.width=width||20;
+            this.height=height||20;
+            this.color=color||'blue';           
+        }
+        
+        Food.prototype.init=function (oM)
+        {
+            remove();
+            var div=document.createElement('div');
+            
+            div.style.width=this.width+'px';
+            div.style.height=this.height+'px';
+            div.style.backgroundColor=this.color;
+            div.style.position='absolute';
+            
+            this.x=parseInt(Math.random()*(oM.offsetWidth/this.width))*this.width;
+            this.y=parseInt(Math.random()*(oM.offsetHeight/this.height))*this.height;
+            div.style.left=this.x+'px';
+            div.style.top=this.y+'px';
+            oM.appendChild(div);
+            aElement.push(div);
+        }
+        
+        function remove()
+        {
+            for(var i=0; i<aElement.length; i++)
+            {
+                aElement[i].parentNode.removeChild(aElement[i]);
+                aElement.splice(i,1);
+            }
+        }
+        
+        window.Food=Food;       
+    }());
+           
+    
+    (function(){
+        var aElement=[];        
+        function Sanke(width, height, direction)
+        {
+            this.width=width||20;
+            this.height=width||20;
+            this.direction=direction||'right';
+            
+            this.body=[ 
+                {x:3, y:2, color:'red'},
+                {x:2, y:2, color:'#fff'},
+                {x:1, y:2, color:'#fff'}
+            ];
+        }        
+        
+        Sanke.prototype.init=function(oM)
+        {
+            remove();
+            
+            for(var i=0; i<this.body.length; i++)
+            {
+                var oDiv=document.createElement('div');
+                oDiv.style.width=this.width+'px';
+                oDiv.style.height=this.height+'px';
+                oDiv.style.position='absolute';
+                
+                oDiv.style.left=this.body[i].x*this.width+'px';
+                oDiv.style.top=this.body[i].y*this.height+'px';
+                oDiv.style.backgroundColor=this.body[i].color;
+                
+                aElement.push(oDiv);                
+                oM.appendChild(oDiv);
+            }
+            //console.log(aElement.length);            
+        }
+        
+        Sanke.prototype.move=function (food, oM)
+        {
+            var i=this.body.length-1;
+            for(; i>0; i--)
+            {
+                this.body[i].x=this.body[i-1].x;
+                this.body[i].y=this.body[i-1].y;
+            }
+            
+            switch(this.direction)
+            {
+                case 'right':this.body[0].x+=1;
+                break;
+                case 'left':this.body[0].x-=1;
+                break;
+                case 'top':this.body[0].y-=1;
+                break;
+                case 'bottom':this.body[0].y+=1;
+                break;
+            }
+            
+            var headX=this.body[0].x*this.width;
+            var headY=this.body[0].y*this.height;
+            
+            if(headX==food.x&&headY==food.y)
+            {
+                var last=this.body[this.body.length-1];
+                console.log(last);
+                this.body.push({ x:last.x, y:last.y, color:last.color   });
+                food.init(oM);
+            }
+        }
+        
+        function remove()
+        {
+            var i=aElement.length-1;
+            for(; i>=0; i--)
+            {                
+                aElement[i].parentNode.removeChild(aElement[i]);
+                aElement.splice(i,1);
+            }
+        }
+        
+        window.Sanke=Sanke;
+    }());       //不写分号问题很大；
+    
+    (function(){
+        var _this=null;
+        function Game(oM)
+        {
+            //console.log(oM);
+            _this=this;
+            this.food=new Food();
+            this.sanke=new Sanke();
+            this.om=oM;           
+        }
+        
+        Game.prototype.init=function()
+        {
+            this.food.init(this.om);
+            this.sanke.init(this.om);
+            this.interval(this.food, this.om);
+        }
+        
+        Game.prototype.interval=function(food, oM)
+        {
+            var timer=setInterval(function(){
+                this.sanke.move(food, oM);
+                this.sanke.init(oM);
+                
+                var maxX=oM.offsetWidth/this.sanke.width;
+                var maxY=oM.offsetHeight/this.sanke.height;
+                
+                var headX=this.sanke.body[0].x;
+                var headY=this.sanke.body[0].y;
+                if(headX<0||headX>=maxX)
+                {
+                    console.log(this.sanke.body[0].x);
+                    clearInterval(timer);
+                    alert('失败');
+                }
+                if(headY<0||headY>=maxY)
+                {
+                    clearInterval(timer);
+                    alert('失败');
+                }
+                
+            }.bind(_this),150);
+            
+            this.bindKey();
+        }
+        
+        Game.prototype.bindKey=function ()
+        {
+            myAddEvent(document, 'keydown', function(ev){
+                var oEvent=ev||event;
+                //console.log(this);
+                switch(oEvent.keyCode)
+                {
+                    case 37:this.sanke.direction='left';
+                    break;
+                    case 38:this.sanke.direction='top';
+                    break;
+                    case 39:this.sanke.direction='right';
+                    break;
+                    case 40:this.sanke.direction='bottom';
+                    break;
+                }
+            }.bind(_this));
+        }
+                
+        window.Game=Game;
+    }());
+
+    var oGame=new Game(document.querySelector('.m'));
+    oGame.init();
+}
+</script>
+
+</head>
+
+<body>
+<div class="m"></div>
+</body>
+</html>

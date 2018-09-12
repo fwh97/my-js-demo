@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<style>
+		body { background: #666; } ul { padding: 0; margin: 0; } li { list-style: none; } img { border: 0; }
+
+		.play { width: 400px; height: 430px; margin: 50px auto 0; background: #999; font: 12px Arial; }
+
+		.big_pic { width: 400px; height: 320px; overflow: hidden; border-bottom: 1px solid #ccc; background: #222; position: relative; }
+		.big_pic li { width: 400px; height: 320px; overflow: hidden; position: absolute; top: 0; left: 0; z-index: 0; background: url(images/loading.gif) no-repeat center center; }
+
+		.mark_left { width: 200px; height: 320px; position: absolute; left: 0; top: 0; background: red; filter: alpha(opacity:0); opacity: 0; z-index:3000; }
+		.mark_right { width: 200px; height: 320px; position: absolute; left: 200px; top: 0; background: green; filter: alpha(opacity:0); opacity: 0; z-index:3000; }
+		.big_pic .prev { width: 60px; height: 60px; background: url(images/btn.gif) no-repeat; position: absolute; top: 130px; left: 10px; z-index: 3001; cursor: pointer; filter:alpha(opacity: 0); opacity:0; }
+		.big_pic .next { width: 60px; height: 60px; background: url(images/btn.gif) no-repeat 0 -60px; position: absolute; top: 130px; right: 10px; z-index: 3001;cursor: pointer; filter:alpha(opacity: 0); opacity:0; }
+
+		.big_pic .text { position: absolute; left: 10px; top: 302px; z-index: 3000; color: #ccc; }
+		.big_pic .length { position: absolute; right: 10px; bottom: 4px; z-index: 3000; color: #ccc; }
+		.big_pic .bg { width: 400px; height: 25px; background: #000; filter: alpha(opacity=60); opacity: 0.6; position: absolute; z-index: 2999; bottom: 0; left: 0; }
+		.small_pic { width: 380px; height: 94px; position: relative; top: 7px; left: 10px; overflow: hidden; }
+		.small_pic ul { height: 94px; position: absolute; top: 0; left: 0; }
+		.small_pic li { width: 120px; height: 94px; float: left; padding-right: 10px; background: url(images/loading.gif) no-repeat center center; cursor: pointer; filter: alpha(opacity=60); opacity: 0.6; }
+		.small_pic img { width: 120px; height: 94px; }
+	</style>
+	<script>
+
+		function getByClass(oParent,sClass){
+			var aEl=oParent.getElementsByTagName("*");
+			var arr=[];
+			var re=new RegExp("\\b"+sClass+"\\b","i");
+
+			for(var i=0; i<aEl.length; i++){
+				if(re.test(aEl[i].className)){
+					arr.push(aEl[i]);
+				}
+			}
+			return arr;
+		}
+
+		function getStyle(obj, attr) {
+			if(obj.currentStyle){
+				return obj.currentStyle[attr];
+			}
+			else{
+				return getComputedStyle(obj,false)[attr];
+			}
+		}
+
+		function startMove(obj,attr, iTarget) {
+			clearInterval(obj.timer);
+
+			obj.timer=setInterval(function ()
+			{
+				var iAttr=0;
+
+				if(attr=='opacity')
+				{
+					iAttr=parseInt(parseFloat(getStyle(obj, attr))*100);
+				}
+				else
+				{
+					iAttr=parseInt(getStyle(obj, attr));
+				}
+
+				var iSpeed=(iTarget-iAttr)/8;
+
+				iSpeed=iSpeed>0?Math.ceil(iSpeed):Math.floor(iSpeed);
+
+				if(iAttr==iTarget)
+				{
+					clearInterval(obj.timer);
+				}
+				else
+				{
+					if(attr=='opacity')
+					{
+						obj.style.opacity=(iAttr+iSpeed)/100;
+						obj.style.filter='alpha(opacity:'+(iAttr+iSpeed)+')';
+					}
+					else
+					{
+						obj.style[attr]=iAttr+iSpeed+'px';
+					}
+				}
+
+			},30);
+		}
+
+		window.onload=function () {
+			var oPlay=document.getElementById("playimages");
+			var oPrev=getByClass(oPlay, "prev")[0];
+			var oNext=getByClass(oPlay, "next")[0];
+			var oMarkL=getByClass(oPlay, "mark_left")[0];
+			var oMarkR=getByClass(oPlay, "mark_right")[0];
+
+			var oSmallUl=getByClass(oPlay, "small_pic")[0].getElementsByTagName("ul")[0];
+			var aSmallLi=oSmallUl.getElementsByTagName("li");
+			var oBigUl=getByClass(oPlay, "big_pic")[0];
+			var aBibLi=oBigUl.getElementsByTagName("li");
+			var iNow=0;
+			var iMinZindex=2;
+			var i=0;
+
+			var oTxt=getByClass(oPlay,'text')[0];
+			var oLen=getByClass(oPlay,'length')[0];
+			var arr={oTxt:['width','height','fontSize','borderWidth','ok','好的'],oLen:[1,2,3,4,5,6]};
+
+			oSmallUl.style.width=aSmallLi.length*aSmallLi[0].offsetWidth+'px';
+
+			oMarkL.onmouseover=oPrev.onmouseover=function () {  //左按钮显示
+				startMove(oPrev, "opacity", 100);
+			};
+			oMarkR.onmouseover=oNext.onmouseover=function () {   //右按钮显示
+				startMove(oNext, "opacity", 100);
+			};
+
+			oMarkL.onmouseout=oPrev.onmouseout=function () {  //隐藏
+				startMove(oPrev, "opacity", 0);
+			};
+			oMarkR.onmouseout=oNext.onmouseout=function () {
+				startMove(oNext, "opacity", 0);
+			};
+
+			oPrev.onclick=function () {   //左按钮点击切换图片
+				iNow--;                   //iNow-- 往左；
+				if(iNow==-1){             //小于-1 回到最后一张
+					iNow=aSmallLi.length-1;
+				}
+				tab();
+			};
+			oNext.onclick=function () {        //右按钮点击切换图片
+				iNow++;                        //iNow-- 往右；
+				if(iNow==aSmallLi.length){
+					iNow=0;    // 回到第一张
+				}
+				tab();
+			};
+
+			for(i=0; i<aSmallLi.length; i++){
+				aSmallLi[i].index=i;              //每一个aSmallLi 赋索引值
+				aSmallLi[i].onmouseover=function () {
+					startMove(this,"opacity", 100);     //鼠标移入清晰
+				};
+				aSmallLi[i].onmouseout=function () {
+					if(this.index!=iNow){        //图片栏不是显示当前图片，都朦胧；
+						startMove(this,"opacity", 60);
+					}
+				};
+
+				aSmallLi[i].onclick=function () {
+					if(this.index==iNow)return;  //点击当前显示的图不再动画效果；
+					iNow=this.index;  //iNow 核心就是存了当前对象的索引值
+
+					tab();  //执行轮播效果
+				};
+			}
+
+			oPlay.timer=setInterval(function () {
+				iNow++;
+				if(iNow==aSmallLi.length){
+					iNow=0;        //iNow值要回到0；  搞了好久才发现这问题；
+				}
+				tab();
+			},3000);
+
+			oPlay.onmouseenter=function () {  //马勒戈壁，现在才发现这个事件方法，onmouseover...等去死吧
+					clearInterval(oPlay.timer);    //onmouseenter 不稳定，加载页面时鼠标就移入进来会不触发
+					console.log(oPlay.timer);
+			};
+			oPlay.onmouseleave=function () {     //然后移出后，定时器会开启叠加一个，就造成轮播速度加快bug
+				oPlay.timer=setInterval(function () {
+						iNow++;
+						if(iNow==aSmallLi.length){
+							iNow=0;        //iNow值要回到0；  搞了好久才发现这问题；
+						}
+						tab();
+				},3000);
+			};
+			function tab() {
+				for(i=0; i<aSmallLi.length;i++){
+					startMove(aSmallLi[i], "opacity", 60);  //让图片栏图片显示都朦胧；
+				}
+				startMove(aSmallLi[iNow], "opacity", 100);   //当前显示清晰
+				oTxt.innerText=arr.oTxt[iNow];   //显示对应文字内容；
+				oLen.innerText=arr.oLen[iNow];
+
+				aBibLi[iNow].style.zIndex=iMinZindex++; //当前显示图片z-index值增加
+				aBibLi[iNow].style.height=0;  //高变为0,实现从上往下展开动画效果；
+				startMove(aBibLi[iNow], "height", oBigUl.offsetHeight);  //让图片高运动
+
+				if(iNow==0){ // iNow=0， 到第一张 ，图片栏left滚动到0；
+					startMove(oSmallUl, "left",0);  //图片栏滚动起来
+				}
+				else if(iNow==aSmallLi.length-1){  //最后一张
+					startMove(oSmallUl, "left",-(iNow-2)*aSmallLi[0].offsetWidth);
+				}
+				else{
+					startMove(oSmallUl, "left",-(iNow-1)*aSmallLi[0].offsetWidth);
+				}
+			}
+
+
+		}
+	</script>
+</head>
+<body>
+<div id="playimages" class="play">
+	<ul class="big_pic">
+		<div class="prev"></div>
+		<div class="next"></div>
+
+		<div class="text">width</div>
+		<div class="length">1</div>
+
+		<a class="mark_left" href="javascript:;"></a>
+		<a class="mark_right" href="javascript:;"></a>
+		<div class="bg"></div>
+
+		<li style="z-index:1;"><img src="images/1.jpg" /></li>
+		<li><img src="images/2.jpg" /></li>
+		<li><img src="images/3.jpg" /></li>
+		<li><img src="images/4.jpg" /></li>
+		<li><img src="images/5.jpg" /></li>
+		<li><img src="images/6.jpg" /></li>
+	</ul>
+	<div class="small_pic">
+		<ul style="width:390px;">
+			<li style="filter: 100; opacity: 1;"><img src="images/1.jpg" /></li>
+			<li><img src="images/2.jpg" /></li>
+			<li><img src="images/3.jpg" /></li>
+			<li><img src="images/4.jpg" /></li>
+			<li><img src="images/5.jpg" /></li>
+			<li><img src="images/6.jpg" /></li>
+		</ul>
+	</div>
+</div>
+</body>
+</html>

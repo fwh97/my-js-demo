@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		.box {
+			width: 350px;
+			height: 350px;
+			margin: 100px;
+			border: 1px solid #ccc;
+			position: relative;
+		}
+
+		.big {
+			width: 400px;
+			height: 400px;
+			position: absolute;
+			top: 0;
+			left: 360px;
+			border: 1px solid #ccc;
+			overflow: hidden;
+			display: none;
+		}
+
+		.mask {
+			width: 175px;
+			height: 175px;
+			background: rgba(255, 255, 0, 0.4);
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			cursor: move;
+			display: none;
+		}
+
+		.small {
+			position: relative;
+		}
+	</style>
+	<script src="move.js"></script>
+	<script>
+		function getByClass(oParent, sClass) {
+			var aEl = oParent.getElementsByTagName("*");
+			var arr = [];
+			var re = new RegExp("\\b" + sClass + "\\b", i);
+
+			for ( var i = 0; i < aEl.length; i++ ) {
+				if ( re.test(aEl[ i ].className) ) {
+					arr.push(aEl[ i ]);
+				}
+			}
+			return arr;
+		}
+		window.onload = function () {
+			var oBox = id("box");
+			var small = getByClass(oBox, "small")[ 0 ];
+			var mask = getByClass(oBox, "mask")[ 0 ];
+			var oBig = getByClass(oBox, "big")[ 0 ];
+			var bigImg = oBig.children[ 0 ];
+
+			small.onmouseover = function () {
+				oBig.style.display = "block";
+				mask.style.display = "block";
+			};
+			small.onmouseout = function () {
+				oBig.style.display = "none";
+				mask.style.display = "none";
+			};
+
+			small.onmousemove = function (ev) {
+				var oEvent = ev || event;
+				var x = oEvent.clientX - mask.offsetWidth / 2;
+				var y = oEvent.clientY - mask.offsetHeight / 2;
+				x = x - 100;
+				y = y - 100;
+
+				x = x < 0 ? 0 : x;
+				//纵坐标的最小值
+				y = y < 0 ? 0 : y;
+				//横坐标的最大值
+				x = x > small.offsetWidth - mask.offsetWidth ? small.offsetWidth - mask.offsetWidth : x;
+				//纵坐标的最大值
+				y = y > small.offsetHeight - mask.offsetHeight ? small.offsetHeight - mask.offsetHeight : y;
+
+				mask.style.left = x + "px";
+				mask.style.top = y + "px";
+
+				/*var percentX = bigImg.offsetWidth - oBig.offsetWidth;
+				console.log(percentX);
+				var disX = x * percentX / (small.offsetWidth - mask.offsetWidth);
+				var disY = y * percentX / (small.offsetWidth - mask.offsetWidth);*/
+
+				var percentX=x/(small.offsetWidth-mask.offsetWidth);
+				var percentY=y/(small.offsetWidth-mask.offsetWidth);
+				//要负
+				bigImg.style.marginLeft = -percentX * (bigImg.offsetWidth-oBig.offsetWidth)+ "px";
+				bigImg.style.marginTop = -percentY * (bigImg.offsetWidth-oBig.offsetWidth)+ "px";
+
+
+			}
+
+
+		}
+	</script>
+</head>
+<body>
+<div class="box" id="box">
+	<div class="small"><!--小层-->
+		<img src="images/small.png" width="350" alt=""/>
+		<div class="mask"></div><!--遮挡层-->
+	</div><!--小图-->
+	<div class="big"><!--大层-->
+		<img src="images/big.jpg" width="800" alt=""/><!--大图-->
+	</div><!--大图-->
+</div>
+
+</body>
+</html>
